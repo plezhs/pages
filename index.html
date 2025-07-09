@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Simple Image Gallery</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .gallery-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            justify-content: center;
+            margin-top: 40px;
+        }
+        .gallery-item {
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            overflow: hidden;
+            width: 220px;
+            transition: transform 0.2s;
+        }
+        .gallery-item:hover {
+            transform: scale(1.04);
+        }
+        .gallery-item img {
+            width: 100%;
+            height: 160px;
+            object-fit: cover;
+            display: block;
+            cursor: pointer;
+        }
+        .gallery-caption {
+            padding: 10px;
+            text-align: center;
+            font-size: 16px;
+            color: #444;
+        }
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100vw;
+            height: 100vh;
+            overflow: auto;
+            background: rgba(0,0,0,0.7);
+            align-items: center;
+            justify-content: center;
+        }
+        .modal.active {
+            display: flex;
+        }
+        .modal-content {
+            position: relative;
+            background: #fff;
+            border-radius: 10px;
+            padding: 20px;
+            max-width: 90vw;
+            max-height: 90vh;
+            box-shadow: 0 4px 32px rgba(0,0,0,0.25);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .modal-content img {
+            max-width: 80vw;
+            max-height: 70vh;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+        .modal-caption {
+            font-size: 20px;
+            color: #222;
+            text-align: center;
+        }
+        .modal-close {
+            position: absolute;
+            top: 8px;
+            right: 16px;
+            font-size: 28px;
+            color: #888;
+            background: none;
+            border: none;
+            cursor: pointer;
+            z-index: 10;
+        }
+        .modal-close:hover {
+            color: #222;
+        }
+    </style>
+</head>
+<body>
+    <h1>Image Gallery</h1>
+    <div class="gallery-container">
+        <div class="gallery-item">
+            <img src="https://images.pexels.com/photos/45201/kitty-cat-kitten-pet-45201.jpeg?auto=compress&w=600&q=80" alt="Cute Kitten">
+            <div class="gallery-caption">Cute Kitten</div>
+        </div>
+        <div class="gallery-item">
+            <img src="https://images.pexels.com/photos/320014/pexels-photo-320014.jpeg?auto=compress&w=600&q=80" alt="Tabby Cat">
+            <div class="gallery-caption">Tabby Cat</div>
+        </div>
+        <div class="gallery-item">
+            <img src="https://images.pexels.com/photos/1276553/pexels-photo-1276553.jpeg?auto=compress&w=600&q=80" alt="Cat on Bed">
+            <div class="gallery-caption">Cat on Bed</div>
+        </div>
+        <div class="gallery-item">
+            <img src="https://images.pexels.com/photos/1170986/pexels-photo-1170986.jpeg?auto=compress&w=600&q=80" alt="White Cat">
+            <div class="gallery-caption">White Cat</div>
+        </div>
+        <div class="gallery-item">
+            <img src="https://images.pexels.com/photos/416160/pexels-photo-416160.jpeg?auto=compress&w=600&q=80" alt="Cat in Grass">
+            <div class="gallery-caption">Cat in Grass</div>
+        </div>
+        <div class="gallery-item">
+            <img src="https://images.pexels.com/photos/45243/kitty-cat-kitten-pet-45243.jpeg?auto=compress&w=600&q=80" alt="Playful Kitten">
+            <div class="gallery-caption">Playful Kitten</div>
+        </div>
+        <div class="gallery-item">
+            <img src="https://images.pexels.com/photos/104827/cat-pet-animal-domestic-104827.jpeg?auto=compress&w=600&q=80" alt="Sleepy Cat">
+            <div class="gallery-caption">Sleepy Cat</div>
+        </div>
+        <div class="gallery-item">
+            <img src="https://images.pexels.com/photos/326875/pexels-photo-326875.jpeg?auto=compress&w=600&q=80" alt="Curious Cat">
+            <div class="gallery-caption">Curious Cat</div>
+        </div>
+        <div class="gallery-item">
+            <img src="https://images.pexels.com/photos/730896/pexels-photo-730896.jpeg?auto=compress&w=600&q=80" alt="Cat Looking Up">
+            <div class="gallery-caption">Cat Looking Up</div>
+        </div>
+        <div class="gallery-item">
+            <img src="https://images.pexels.com/photos/208984/pexels-photo-208984.jpeg?auto=compress&w=600&q=80" alt="Cat with Blue Eyes">
+            <div class="gallery-caption">Cat with Blue Eyes</div>
+        </div>
+    </div>
+
+    <!-- Modal for expanded image -->
+    <div class="modal" id="imageModal">
+        <div class="modal-content">
+            <button class="modal-close" id="modalCloseBtn">&times;</button>
+            <img id="modalImg" src="" alt="">
+            <div class="modal-caption" id="modalCaption"></div>
+        </div>
+    </div>
+    <script>
+        // Get all images in the gallery
+        const galleryImages = document.querySelectorAll('.gallery-item img');
+        const modal = document.getElementById('imageModal');
+        const modalImg = document.getElementById('modalImg');
+        const modalCaption = document.getElementById('modalCaption');
+        const modalCloseBtn = document.getElementById('modalCloseBtn');
+
+        galleryImages.forEach(img => {
+            img.addEventListener('click', function() {
+                modal.classList.add('active');
+                modalImg.src = this.src;
+                modalImg.alt = this.alt;
+                // Get caption from sibling .gallery-caption
+                const caption = this.parentElement.querySelector('.gallery-caption');
+                modalCaption.textContent = caption ? caption.textContent : this.alt;
+            });
+        });
+
+        function closeModal() {
+            modal.classList.remove('active');
+            modalImg.src = '';
+            modalCaption.textContent = '';
+        }
+
+        modalCloseBtn.addEventListener('click', closeModal);
+
+        // Close modal when clicking outside modal-content
+        modal.addEventListener('click', function(e) {
+            if (e.target === modal) {
+                closeModal();
+            }
+        });
+
+        // Optional: close modal on ESC key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && modal.classList.contains('active')) {
+                closeModal();
+            }
+        });
+    </script>
+</body>
+</html>
